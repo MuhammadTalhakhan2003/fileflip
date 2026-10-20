@@ -26,4 +26,5 @@ RUN useradd --create-home --uid 1000 convertor && mkdir -p /data && chown conver
 USER convertor
 
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers"]
+# PORT and WORKERS can be set by the host (Render sets PORT; small plans want WORKERS=1)
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers ${WORKERS:-2} --proxy-headers --forwarded-allow-ips=*"]

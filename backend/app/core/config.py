@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     libreoffice_path: str | None = None
     ghostscript_path: str | None = None
     tessdata_path: str | None = None
+    # parallel LibreOffice instances per worker (each needs ~200 MB of RAM); 0 = pick from CPU count
+    libreoffice_pool_size: int = 0
 
     # AI tools
     anthropic_api_key: str | None = Field(

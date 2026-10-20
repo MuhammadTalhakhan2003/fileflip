@@ -1,0 +1,22 @@
+# Render blueprint: New + > Blueprint > pick this repo > Apply.
+# Deploys the FileFlip API (backend/) as a free Docker web service.
+services:
+  - type: web
+    name: fileflip-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: WORKERS
+        value: "1"
+      - key: CONVERTOR_LIBREOFFICE_POOL_SIZE
+        value: "1"
+      - key: CONVERTOR_ENVIRONMENT
+        value: production
+      - key: CONVERTOR_TRUST_PROXY_HEADERS
+        value: "true"
+      - key: CONVERTOR_CORS_ORIGINS
+        value: '["https://fileflip-gules.vercel.app","http://localhost:3000"]'

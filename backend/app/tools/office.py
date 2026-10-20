@@ -32,7 +32,7 @@ HTML_EXTS = ("html", "htm")
 # LibreOffice spends ~8 s creating a fresh user profile, so profiles are reused.
 # A profile can't be shared by two running instances, hence a small pool: each
 # conversion borrows one, and parallel conversions get different ones.
-_PROFILE_POOL_SIZE = max(1, min(4, (os.cpu_count() or 2) // 2))
+_PROFILE_POOL_SIZE = get_settings().libreoffice_pool_size or max(1, min(4, (os.cpu_count() or 2) // 2))
 _free_profiles: queue.SimpleQueue[Path] = queue.SimpleQueue()
 for _i in range(_PROFILE_POOL_SIZE):
     _free_profiles.put(Path(tempfile.gettempdir()) / "fileflip-lo-profiles" / f"{os.getpid()}-{_i}")  # per process: uvicorn may run several workers
