@@ -176,6 +176,15 @@ export function DraggableBox({
   children?: ReactNode;
   handles?: boolean;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // a newly placed item is selected right away; if it landed off screen, bring it into view
+  useEffect(() => {
+    const el = ref.current;
+    if (!selected || !el) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < 80 || r.bottom > window.innerHeight - 20) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [selected]);
+
   function start(e: ReactPointerEvent, handle: Handle) {
     if ((e.target as HTMLElement).closest("textarea,input,[data-no-drag]") && handle === "move") return;
     e.stopPropagation();
@@ -227,6 +236,7 @@ export function DraggableBox({
 
   return (
     <div
+      ref={ref}
       onPointerDown={(e) => start(e, "move")}
       className={clsx("group/box absolute cursor-move", selected && "z-10", className)}
       style={{ left: box.x * scale, top: box.y * scale, width: box.width * scale, height: box.height * scale }}
