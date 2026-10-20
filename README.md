@@ -9,7 +9,7 @@
 **61 free PDF & image tools. No sign-up, no watermarks, no "upgrade to Pro" pop-ups.**
 Merge, split, compress, convert, edit and sign — then your files politely self-destruct. 💣
 
-[![Live demo](https://img.shields.io/badge/🚀_Live_demo-fileflip-7C4DFF?style=for-the-badge)](LIVE_URL)
+[![Live demo](https://img.shields.io/badge/🚀_Live_demo-fileflip-7C4DFF?style=for-the-badge)](https://fileflip-gules.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000?style=for-the-badge&logo=nextdotjs)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-EC4899?style=for-the-badge)](LICENSE)

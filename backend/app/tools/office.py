@@ -35,7 +35,7 @@ HTML_EXTS = ("html", "htm")
 _PROFILE_POOL_SIZE = max(1, min(4, (os.cpu_count() or 2) // 2))
 _free_profiles: queue.SimpleQueue[Path] = queue.SimpleQueue()
 for _i in range(_PROFILE_POOL_SIZE):
-    _free_profiles.put(Path(tempfile.gettempdir()) / "fileflip-lo-profiles" / str(_i))
+    _free_profiles.put(Path(tempfile.gettempdir()) / "fileflip-lo-profiles" / f"{os.getpid()}-{_i}")  # per process: uvicorn may run several workers
 
 
 def libreoffice_convert(src: Path, out_dir: Path, target: str = "pdf", *, infilter: str | None = None) -> Path:
