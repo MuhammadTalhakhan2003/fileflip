@@ -16,6 +16,7 @@ from app.api.deps import get_storage
 from app.api.routes import router
 from app.core.config import get_settings
 from app.core.errors import AppError
+from app.core import workers
 from app.tools.office import warm_up_libreoffice
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -37,11 +38,17 @@ async def lifespan(_: FastAPI):
     settings = get_settings()
     get_storage()  # creates the storage folder
     task = asyncio.create_task(_cleanup_loop(settings.cleanup_interval_seconds))
-    warm_up = asyncio.create_task(asyncio.to_thread(warm_up_libreoffice))  # first Office conversion is fast too
+    if settings.isolate_tools:
+        workers.start()  # spins up a worker and warms LibreOffice inside it
+        warm_up = None
+    else:
+        warm_up = asyncio.create_task(asyncio.to_thread(warm_up_libreoffice))  # first Office conversion is fast too
     log.info("%s started (%s)", settings.app_name, settings.environment)
     yield
     task.cancel()
-    warm_up.cancel()
+    if warm_up:
+        warm_up.cancel()
+    workers.stop()
 
 
 def create_app() -> FastAPI:

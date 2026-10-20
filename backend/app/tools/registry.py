@@ -133,6 +133,10 @@ class ExtraInput:
         }
 
 
+def _no_progress(*_args, **_kwargs) -> None:
+    pass
+
+
 @dataclass
 class Context:
     inputs: list[Path]
@@ -140,7 +144,7 @@ class Context:
     options: dict[str, Any]
     extras: dict[str, list[Path]] = field(default_factory=dict)
     # progress(fraction 0..1, stage text) - shown live in the browser while the tool runs
-    progress: Callable[..., None] = field(default=lambda *a, **k: None)
+    progress: Callable[..., None] = _no_progress  # module-level, so a Context can be sent to a worker process
 
     def extra(self, name: str) -> Path | None:
         files = self.extras.get(name) or []

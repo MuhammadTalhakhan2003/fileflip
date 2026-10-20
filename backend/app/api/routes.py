@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import shutil
+from concurrent.futures.process import BrokenProcessPool
 import tempfile
 from pathlib import Path
 
@@ -11,7 +12,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
 from app.api.deps import client_ip, get_job_slots, get_rate_limiter, get_storage
-from app.core import engines, progress
+from app.core import engines, progress, workers
 from app.core.config import get_settings
 from app.core.errors import AppError, ConversionFailed, InvalidInput, JobTimeout, NotFound, TooLarge
 from app.core.rate_limit import RateLimiter
@@ -182,14 +183,22 @@ async def _build_context(t: Tool, form, input_dir: Path, work_dir: Path) -> Cont
 
 
 async def _run(t: Tool, ctx: Context):
-    timeout = t.timeout or get_settings().job_timeout_seconds
+    settings = get_settings()
+    timeout = t.timeout or settings.job_timeout_seconds
     async with get_job_slots():
         try:
+            if settings.isolate_tools:
+                return await workers.run(t.slug, ctx, timeout)
             return await asyncio.wait_for(run_in_threadpool(t.handler, ctx), timeout=timeout)
         except AppError:
             raise
         except asyncio.TimeoutError:
             raise JobTimeout("This file took too long to process. Try a smaller file or fewer pages.") from None
+        except BrokenProcessPool:
+            log.error("Worker died while running %s (most likely out of memory)", t.slug)
+            raise ConversionFailed(
+                "This file needed more memory than our free server has. Try fewer pages or a smaller file."
+            ) from None
         except Exception as exc:
             log.exception("Tool %s failed", t.slug)
             raise ConversionFailed(
@@ -299,4 +308,12 @@ def _inspect_file(path: Path, password: str) -> dict:
 @router.get("/health", summary="Service and engine status")
 def health() -> dict:
     available = sum(1 for t in TOOLS.values() if t.available())
-    return {"status": "ok", "engines": engines.status(), "tools_available": available, "tools_total": len(TOOLS)}
+    settings = get_settings()
+    return {
+        "status": "ok",
+        "engines": engines.status(),
+        "tools_available": available,
+        "tools_total": len(TOOLS),
+        "workers": settings.job_slots if settings.isolate_tools else 0,
+        "ocr_max_dpi": settings.ocr_dpi_cap,
+    }

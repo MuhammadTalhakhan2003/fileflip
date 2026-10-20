@@ -8,6 +8,7 @@ import subprocess
 import pymupdf
 
 from app.core import engines
+from app.core.config import get_settings
 from app.core.errors import ConversionFailed, InvalidInput
 from app.tools.common import PAGES, PASSWORD, bundle, open_pdf, out_path, parse_page_ranges
 from app.tools.registry import Category, Context, Option, Result, tool
@@ -156,6 +157,7 @@ def ocr_pdf(ctx: Context) -> Result:
         raise InvalidInput(f"OCR language not available: {', '.join(sorted(missing))}. Installed: {', '.join(sorted(engines.tesseract_languages() - {'osd'}))}.")
 
     src = ctx.inputs[0]
+    dpi = min(ctx.options["dpi"], get_settings().ocr_dpi_cap)
     recognized = skipped = 0
     with open_pdf(src, ctx.options["password"]) as doc:
         pages = parse_page_ranges(ctx.options["pages"], doc.page_count)
@@ -166,12 +168,13 @@ def ocr_pdf(ctx: Context) -> Result:
                 skipped += 1
                 continue
             try:
-                textpage = page.get_textpage_ocr(dpi=ctx.options["dpi"], full=True, language=language, tessdata=engines.tessdata_path())
+                textpage = page.get_textpage_ocr(dpi=dpi, full=True, language=language, tessdata=engines.tessdata_path())
             except Exception as exc:
                 raise ConversionFailed(
                     f"OCR failed. Make sure the language pack '{language}' is installed on the server."
                 ) from exc
             _add_invisible_text(page, page.get_text("words", textpage=textpage))
+            del textpage  # free each page's OCR data right away (matters on small servers)
             recognized += 1
 
         ctx.progress(0.92, "Saving your searchable PDF")

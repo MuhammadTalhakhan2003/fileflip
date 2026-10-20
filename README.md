@@ -173,7 +173,7 @@ Found a bug? Want a new tool? PRs and issues are very welcome. Adding a tool is 
 
 ### 🍪 Designed & built by [Muhammad Talha Khan](https://muhammadtalhakhan2003.github.io/PortFolio_Talha/)
 
-*Powered by Cookies & Brookies.* 🍪
+*Powered by Cookies & Brookies, and a personal grudge against paywalled PDFs.* 🍪
 
 If FileFlip saved you from a sign-up form today, drop a ⭐. It costs nothing, which is a theme around here.
 

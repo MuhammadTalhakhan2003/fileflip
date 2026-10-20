@@ -63,7 +63,7 @@ export function Footer() {
               <ArrowUpRight className="size-3.5 transition-transform group-hover/author:-translate-y-0.5 group-hover/author:translate-x-0.5" />
             </a>
           </p>
-          <p className="text-subtle italic">Powered by Cookies &amp; Brookies.</p>
+          <p className="text-subtle italic">Powered by Cookies &amp; Brookies, and a personal grudge against paywalled PDFs.</p>
         </div>
         <div className="container-page flex flex-col items-center justify-between gap-3 py-5 text-[13px] text-muted sm:flex-row">
           <p>© {year} {SITE_NAME}. Made with <Heart className="inline size-3.5 fill-coral text-coral" /> for everyone.</p>

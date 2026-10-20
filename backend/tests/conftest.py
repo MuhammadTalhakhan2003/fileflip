@@ -6,6 +6,8 @@ import pytest
 
 os.environ["CONVERTOR_STORAGE_DIR"] = tempfile.mkdtemp(prefix="convertor-test-")
 os.environ["CONVERTOR_RATE_LIMIT_PER_MINUTE"] = "0"
+# tools run in-process here so tests can patch them; test_workers.py covers the worker processes
+os.environ["CONVERTOR_ISOLATE_TOOLS"] = "false"
 os.environ.pop("ANTHROPIC_API_KEY", None)
 
 import pymupdf  # noqa: E402

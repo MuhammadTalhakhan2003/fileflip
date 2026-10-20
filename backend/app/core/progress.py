@@ -53,7 +53,7 @@ class Reporter:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self.path.with_suffix(f".{os.getpid()}.tmp")
             tmp.write_text(json.dumps(data), encoding="utf-8")
-            os.replace(tmp, self.path)
+            _retry(lambda: os.replace(tmp, self.path))
         except OSError:
             pass  # progress is best effort; never fail a conversion over it
 
@@ -61,10 +61,25 @@ class Reporter:
         if not self.path:
             return
         try:
-            self.path.unlink(missing_ok=True)
+            _retry(lambda: self.path.unlink(missing_ok=True))
         except OSError:
-            # Windows refuses while a poll is reading it; the expiry sweep removes it later
-            pass
+            pass  # still locked; the expiry sweep removes it later
+        for tmp in self.path.parent.glob(f"{self.path.stem}.*.tmp"):
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+def _retry(action, attempts: int = 5) -> None:
+    """Windows won't replace or delete a file while a poll is reading it; that lasts a millisecond or two."""
+    for attempt in range(attempts):
+        try:
+            return action()
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(0.02)
 
 
 def read(progress_id: str) -> dict | None:

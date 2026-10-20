@@ -20,6 +20,17 @@ class AppError(Exception):
             self.status_code = status_code
         self.headers = headers or {}
 
+    def __reduce__(self):
+        # keep code/status when the error travels back from a worker process
+        return _restore, (type(self), self.message, dict(self.__dict__))
+
+
+def _restore(cls, message, state):
+    error = cls.__new__(cls)
+    Exception.__init__(error, message)
+    error.__dict__.update(state)
+    return error
+
 
 class InvalidInput(AppError):
     status_code = 422

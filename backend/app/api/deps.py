@@ -22,7 +22,7 @@ def get_rate_limiter() -> RateLimiter:
 @lru_cache
 def get_job_slots() -> asyncio.Semaphore:
     """Caps how many conversions run at once so one burst can't starve the server."""
-    return asyncio.Semaphore(get_settings().max_concurrent_jobs)
+    return asyncio.Semaphore(get_settings().job_slots)
 
 
 def client_ip(request: Request) -> str:
