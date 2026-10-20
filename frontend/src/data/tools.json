@@ -1,0 +1,2616 @@
+{
+ "categories": [
+  {
+   "id": "organize",
+   "label": "Organize PDF"
+  },
+  {
+   "id": "optimize",
+   "label": "Optimize PDF"
+  },
+  {
+   "id": "convert-to-pdf",
+   "label": "Convert to PDF"
+  },
+  {
+   "id": "convert-from-pdf",
+   "label": "Convert from PDF"
+  },
+  {
+   "id": "edit",
+   "label": "Edit PDF"
+  },
+  {
+   "id": "security",
+   "label": "PDF Security"
+  },
+  {
+   "id": "intelligence",
+   "label": "PDF Intelligence"
+  },
+  {
+   "id": "image",
+   "label": "Image Tools"
+  }
+ ],
+ "tools": [
+  {
+   "slug": "ai-summarizer",
+   "name": "AI Summarizer",
+   "category": "intelligence",
+   "description": "Get the key points of any PDF in seconds.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "md",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "length",
+     "type": "choice",
+     "label": "Summary length",
+     "default": "medium",
+     "required": false,
+     "choices": [
+      "short",
+      "medium",
+      "detailed"
+     ]
+    },
+    {
+     "name": "language",
+     "type": "str",
+     "label": "Summary language",
+     "default": "",
+     "required": false,
+     "help": "Defaults to the document's language"
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [
+    "ai"
+   ],
+   "aliases": [
+    "summarize-pdf"
+   ]
+  },
+  {
+   "slug": "translate-pdf",
+   "name": "Translate PDF",
+   "category": "intelligence",
+   "description": "Translate PDFs into another language while keeping the original layout.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "target_language",
+     "type": "str",
+     "label": "Translate to",
+     "default": null,
+     "required": true,
+     "help": "e.g. English, Urdu, Spanish"
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [
+    "ai"
+   ],
+   "aliases": []
+  },
+  {
+   "slug": "rotate-pdf",
+   "name": "Rotate PDF",
+   "category": "edit",
+   "description": "Rotate all or selected pages of your PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 20,
+   "options": [
+    {
+     "name": "angle",
+     "type": "choice",
+     "label": "Rotate by",
+     "default": "90",
+     "required": false,
+     "choices": [
+      "90",
+      "180",
+      "270",
+      "-90"
+     ]
+    },
+    {
+     "name": "rotations",
+     "type": "json",
+     "label": "Per-page rotation",
+     "default": null,
+     "required": false,
+     "help": "Optional, e.g. {\"1\": 90, \"3\": 180}. Overrides angle/pages."
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "add-page-numbers",
+   "name": "Add page numbers",
+   "category": "edit",
+   "description": "Add page numbers to your PDF with your choice of position, format and style.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "position",
+     "type": "choice",
+     "label": "Position",
+     "default": "bottom-center",
+     "required": false,
+     "choices": [
+      "bottom-center",
+      "bottom-right",
+      "bottom-left",
+      "top-center",
+      "top-right",
+      "top-left"
+     ]
+    },
+    {
+     "name": "format",
+     "type": "choice",
+     "label": "Format",
+     "default": "n",
+     "required": false,
+     "choices": [
+      "n",
+      "page-n",
+      "n-of-total",
+      "page-n-of-total"
+     ]
+    },
+    {
+     "name": "custom_format",
+     "type": "str",
+     "label": "Custom format",
+     "default": "",
+     "required": false,
+     "help": "Use {n} and {total}, e.g. 'Sheet {n}'"
+    },
+    {
+     "name": "start",
+     "type": "int",
+     "label": "First number",
+     "default": 1,
+     "required": false,
+     "min": 0,
+     "max": 100000
+    },
+    {
+     "name": "font_size",
+     "type": "int",
+     "label": "Font size",
+     "default": 11,
+     "required": false,
+     "min": 6,
+     "max": 72
+    },
+    {
+     "name": "font",
+     "type": "choice",
+     "label": "Font",
+     "default": "sans",
+     "required": false,
+     "choices": [
+      "sans",
+      "serif",
+      "mono"
+     ]
+    },
+    {
+     "name": "color",
+     "type": "color",
+     "label": "Color",
+     "default": [
+      0,
+      0,
+      0
+     ],
+     "required": false
+    },
+    {
+     "name": "margin",
+     "type": "int",
+     "label": "Margin (pt)",
+     "default": 24,
+     "required": false,
+     "min": 0,
+     "max": 200
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "add-watermark",
+   "name": "Add watermark",
+   "category": "edit",
+   "description": "Stamp text or an image over your PDF. Choose position, opacity and rotation.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "text",
+     "type": "str",
+     "label": "Watermark text",
+     "default": "",
+     "required": false
+    },
+    {
+     "name": "font_size",
+     "type": "int",
+     "label": "Font size",
+     "default": 48,
+     "required": false,
+     "min": 6,
+     "max": 300
+    },
+    {
+     "name": "bold",
+     "type": "bool",
+     "label": "Bold",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "color",
+     "type": "color",
+     "label": "Color",
+     "default": [
+      0.8,
+      0.1,
+      0.1
+     ],
+     "required": false
+    },
+    {
+     "name": "opacity",
+     "type": "float",
+     "label": "Opacity",
+     "default": 0.3,
+     "required": false,
+     "min": 0.05,
+     "max": 1.0
+    },
+    {
+     "name": "rotation",
+     "type": "int",
+     "label": "Rotation (degrees)",
+     "default": 45,
+     "required": false,
+     "min": -180,
+     "max": 180
+    },
+    {
+     "name": "position",
+     "type": "choice",
+     "label": "Position",
+     "default": "center",
+     "required": false,
+     "choices": [
+      "center",
+      "top-left",
+      "top-center",
+      "top-right",
+      "bottom-left",
+      "bottom-center",
+      "bottom-right",
+      "tile"
+     ]
+    },
+    {
+     "name": "image_scale",
+     "type": "float",
+     "label": "Image size (fraction of page width)",
+     "default": 0.5,
+     "required": false,
+     "min": 0.05,
+     "max": 1.0
+    },
+    {
+     "name": "layer",
+     "type": "choice",
+     "label": "Layer",
+     "default": "over",
+     "required": false,
+     "choices": [
+      "over",
+      "under"
+     ]
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [
+    {
+     "name": "image",
+     "label": "Watermark image (optional)",
+     "accepts": [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp",
+      "bmp",
+      "gif",
+      "tiff",
+      "tif",
+      "ico",
+      "heic",
+      "heif",
+      "svg",
+      "ppm",
+      "pgm",
+      "pbm",
+      "pnm",
+      "xbm",
+      "xpm"
+     ],
+     "required": false,
+     "multiple": false
+    }
+   ],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "crop-pdf",
+   "name": "Crop PDF",
+   "category": "edit",
+   "description": "Trim the margins of your PDF pages or crop to a selected area.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "box",
+     "type": "json",
+     "label": "Crop box",
+     "default": null,
+     "required": false,
+     "help": "Visible area as fractions of the page: {\"x\":0.1,\"y\":0.1,\"width\":0.8,\"height\":0.8}"
+    },
+    {
+     "name": "top",
+     "type": "float",
+     "label": "Top margin (%)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 49
+    },
+    {
+     "name": "right",
+     "type": "float",
+     "label": "Right margin (%)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 49
+    },
+    {
+     "name": "bottom",
+     "type": "float",
+     "label": "Bottom margin (%)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 49
+    },
+    {
+     "name": "left",
+     "type": "float",
+     "label": "Left margin (%)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 49
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "edit-pdf",
+   "name": "Edit PDF",
+   "category": "edit",
+   "description": "Add text, shapes, drawings, highlights, images and links to your PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "operations",
+     "type": "json",
+     "label": "Edits",
+     "default": null,
+     "required": true,
+     "help": "List of operations. Every op has 'type' and 'page' (1-based); coordinates are in points from the visual top-left. Types: text{x,y,width,height,text,size,color,font,bold,italic,align}, rect{x,y,width,height,stroke,fill,stroke_width,opacity}, ellipse{...same as rect}, line{x1,y1,x2,y2,color,stroke_width,opacity}, ink{points:[[x,y],...],color,stroke_width}, highlight{x,y,width,height,color,opacity}, whiteout{x,y,width,height,color}, image{x,y,width,height,image: index into the 'images' uploads}, link{x,y,width,height,url}."
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [
+    {
+     "name": "images",
+     "label": "Images to place",
+     "accepts": [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp",
+      "bmp",
+      "gif",
+      "tiff",
+      "tif",
+      "ico",
+      "heic",
+      "heif",
+      "svg",
+      "ppm",
+      "pgm",
+      "pbm",
+      "pnm",
+      "xbm",
+      "xpm"
+     ],
+     "required": false,
+     "multiple": true
+    }
+   ],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "pdf-forms",
+   "name": "PDF Forms",
+   "category": "edit",
+   "description": "Fill in PDF forms online and download the completed document.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "fields",
+     "type": "json",
+     "label": "Field values",
+     "default": null,
+     "required": true,
+     "help": "{\"Full name\": \"Ali\", \"Agree\": true}"
+    },
+    {
+     "name": "flatten",
+     "type": "bool",
+     "label": "Flatten (make fields non-editable)",
+     "default": false,
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "fill-pdf-form"
+   ]
+  },
+  {
+   "slug": "pdf-to-word",
+   "name": "PDF to Word",
+   "category": "convert-from-pdf",
+   "description": "Turn PDFs into editable Word documents, keeping the layout.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "docx",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-docx",
+    "pdf-to-doc"
+   ]
+  },
+  {
+   "slug": "pdf-to-jpg",
+   "name": "PDF to JPG",
+   "category": "convert-from-pdf",
+   "description": "Convert each PDF page into a high-quality JPG image.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "dpi",
+     "type": "int",
+     "label": "Resolution (DPI)",
+     "default": 150,
+     "required": false,
+     "min": 50,
+     "max": 300
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    },
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "JPG quality",
+     "default": 90,
+     "required": false,
+     "min": 30,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-jpeg",
+    "pdf-to-image"
+   ]
+  },
+  {
+   "slug": "pdf-to-png",
+   "name": "PDF to PNG",
+   "category": "convert-from-pdf",
+   "description": "Convert each PDF page into a lossless PNG image.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "dpi",
+     "type": "int",
+     "label": "Resolution (DPI)",
+     "default": 150,
+     "required": false,
+     "min": 50,
+     "max": 300
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "pdf-to-excel",
+   "name": "PDF to Excel",
+   "category": "convert-from-pdf",
+   "description": "Pull tables and data from PDFs straight into Excel spreadsheets.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "xlsx",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "layout",
+     "type": "choice",
+     "label": "Layout",
+     "default": "sheet-per-table",
+     "required": false,
+     "choices": [
+      "sheet-per-table",
+      "sheet-per-page",
+      "single-sheet"
+     ]
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-xlsx"
+   ]
+  },
+  {
+   "slug": "pdf-to-powerpoint",
+   "name": "PDF to PowerPoint",
+   "category": "convert-from-pdf",
+   "description": "Turn PDFs into PowerPoint slides - one slide per page, with page text in the notes.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pptx",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "dpi",
+     "type": "int",
+     "label": "Slide image quality (DPI)",
+     "default": 200,
+     "required": false,
+     "min": 96,
+     "max": 300
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-pptx",
+    "pdf-to-ppt"
+   ]
+  },
+  {
+   "slug": "pdf-to-text",
+   "name": "PDF to Text",
+   "category": "convert-from-pdf",
+   "description": "Extract all the text from a PDF into a plain .txt file.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "txt",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-txt"
+   ]
+  },
+  {
+   "slug": "pdf-to-markdown",
+   "name": "PDF to Markdown",
+   "category": "intelligence",
+   "description": "Convert PDFs to clean Markdown with headings, lists and tables - ready for AI tools and docs.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "md",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "pdf-to-md"
+   ]
+  },
+  {
+   "slug": "pdf-to-pdfa",
+   "name": "PDF to PDF/A",
+   "category": "convert-from-pdf",
+   "description": "Convert PDFs to PDF/A, the ISO standard for long-term archiving.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "conformance",
+     "type": "choice",
+     "label": "Conformance",
+     "default": "2b",
+     "required": false,
+     "choices": [
+      "1b",
+      "2b",
+      "3b"
+     ]
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [
+    "ghostscript"
+   ],
+   "aliases": []
+  },
+  {
+   "slug": "image-converter",
+   "name": "Image Converter",
+   "category": "image",
+   "description": "Convert images between JPG, PNG, WEBP, HEIC, SVG, GIF, BMP, TIFF, ICO and more.",
+   "accepts": [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tiff",
+    "tif",
+    "ico",
+    "heic",
+    "heif",
+    "svg",
+    "ppm",
+    "pgm",
+    "pbm",
+    "pnm",
+    "xbm",
+    "xpm"
+   ],
+   "output": "image",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "format",
+     "type": "choice",
+     "label": "Convert to",
+     "default": "png",
+     "required": false,
+     "choices": [
+      "jpg",
+      "png",
+      "webp",
+      "gif",
+      "bmp",
+      "tiff",
+      "ico",
+      "ppm",
+      "pdf"
+     ]
+    },
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "convert-image"
+   ]
+  },
+  {
+   "slug": "jpg-to-png",
+   "name": "JPG to PNG",
+   "category": "image",
+   "description": "Convert JPG images to PNG in seconds.",
+   "accepts": [
+    "jpg",
+    "jpeg"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "jpg-to-webp",
+   "name": "JPG to WEBP",
+   "category": "image",
+   "description": "Convert JPG images to WEBP in seconds.",
+   "accepts": [
+    "jpg",
+    "jpeg"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "png-to-jpg",
+   "name": "PNG to JPG",
+   "category": "image",
+   "description": "Convert PNG images to JPG in seconds.",
+   "accepts": [
+    "png"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "png-to-webp",
+   "name": "PNG to WEBP",
+   "category": "image",
+   "description": "Convert PNG images to WEBP in seconds.",
+   "accepts": [
+    "png"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "webp-to-jpg",
+   "name": "WEBP to JPG",
+   "category": "image",
+   "description": "Convert WEBP images to JPG in seconds.",
+   "accepts": [
+    "webp"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "webp-to-png",
+   "name": "WEBP to PNG",
+   "category": "image",
+   "description": "Convert WEBP images to PNG in seconds.",
+   "accepts": [
+    "webp"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "gif-to-jpg",
+   "name": "GIF to JPG",
+   "category": "image",
+   "description": "Convert GIF images to JPG in seconds.",
+   "accepts": [
+    "gif"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "gif-to-png",
+   "name": "GIF to PNG",
+   "category": "image",
+   "description": "Convert GIF images to PNG in seconds.",
+   "accepts": [
+    "gif"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "gif-to-webp",
+   "name": "GIF to WEBP",
+   "category": "image",
+   "description": "Convert GIF images to WEBP in seconds.",
+   "accepts": [
+    "gif"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "bmp-to-jpg",
+   "name": "BMP to JPG",
+   "category": "image",
+   "description": "Convert BMP images to JPG in seconds.",
+   "accepts": [
+    "bmp"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "bmp-to-png",
+   "name": "BMP to PNG",
+   "category": "image",
+   "description": "Convert BMP images to PNG in seconds.",
+   "accepts": [
+    "bmp"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "bmp-to-webp",
+   "name": "BMP to WEBP",
+   "category": "image",
+   "description": "Convert BMP images to WEBP in seconds.",
+   "accepts": [
+    "bmp"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "tiff-to-jpg",
+   "name": "TIFF to JPG",
+   "category": "image",
+   "description": "Convert TIFF images to JPG in seconds.",
+   "accepts": [
+    "tiff",
+    "tif"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "tiff-to-png",
+   "name": "TIFF to PNG",
+   "category": "image",
+   "description": "Convert TIFF images to PNG in seconds.",
+   "accepts": [
+    "tiff",
+    "tif"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "tiff-to-webp",
+   "name": "TIFF to WEBP",
+   "category": "image",
+   "description": "Convert TIFF images to WEBP in seconds.",
+   "accepts": [
+    "tiff",
+    "tif"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "heic-to-jpg",
+   "name": "HEIC to JPG",
+   "category": "image",
+   "description": "Convert HEIC images to JPG in seconds.",
+   "accepts": [
+    "heic",
+    "heif"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "heic-to-png",
+   "name": "HEIC to PNG",
+   "category": "image",
+   "description": "Convert HEIC images to PNG in seconds.",
+   "accepts": [
+    "heic",
+    "heif"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "heic-to-webp",
+   "name": "HEIC to WEBP",
+   "category": "image",
+   "description": "Convert HEIC images to WEBP in seconds.",
+   "accepts": [
+    "heic",
+    "heif"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "svg-to-jpg",
+   "name": "SVG to JPG",
+   "category": "image",
+   "description": "Convert SVG images to JPG in seconds.",
+   "accepts": [
+    "svg"
+   ],
+   "output": "jpg",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "svg-to-png",
+   "name": "SVG to PNG",
+   "category": "image",
+   "description": "Convert SVG images to PNG in seconds.",
+   "accepts": [
+    "svg"
+   ],
+   "output": "png",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "svg-to-webp",
+   "name": "SVG to WEBP",
+   "category": "image",
+   "description": "Convert SVG images to WEBP in seconds.",
+   "accepts": [
+    "svg"
+   ],
+   "output": "webp",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "png-to-ico",
+   "name": "PNG to ICO",
+   "category": "image",
+   "description": "Convert PNG images to ICO in seconds.",
+   "accepts": [
+    "png"
+   ],
+   "output": "ico",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "jpg-to-ico",
+   "name": "JPG to ICO",
+   "category": "image",
+   "description": "Convert JPG images to ICO in seconds.",
+   "accepts": [
+    "jpg",
+    "jpeg"
+   ],
+   "output": "ico",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "jpg-to-pdf",
+   "name": "JPG to PDF",
+   "category": "convert-to-pdf",
+   "description": "Convert JPG, PNG and other images to PDF. Adjust orientation and margins.",
+   "accepts": [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tiff",
+    "tif",
+    "ico",
+    "heic",
+    "heif",
+    "svg",
+    "ppm",
+    "pgm",
+    "pbm",
+    "pnm",
+    "xbm",
+    "xpm"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 100,
+   "options": [
+    {
+     "name": "page_size",
+     "type": "choice",
+     "label": "Page size",
+     "default": "fit",
+     "required": false,
+     "choices": [
+      "fit",
+      "a4",
+      "letter",
+      "legal"
+     ]
+    },
+    {
+     "name": "orientation",
+     "type": "choice",
+     "label": "Orientation",
+     "default": "auto",
+     "required": false,
+     "choices": [
+      "auto",
+      "portrait",
+      "landscape"
+     ]
+    },
+    {
+     "name": "margin",
+     "type": "choice",
+     "label": "Margin",
+     "default": "none",
+     "required": false,
+     "choices": [
+      "none",
+      "small",
+      "big"
+     ]
+    },
+    {
+     "name": "merge",
+     "type": "bool",
+     "label": "Merge all images into one PDF",
+     "default": true,
+     "required": false
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": [
+    "image-to-pdf",
+    "png-to-pdf",
+    "images-to-pdf"
+   ]
+  },
+  {
+   "slug": "scan-to-pdf",
+   "name": "Scan to PDF",
+   "category": "organize",
+   "description": "Turn photos of documents into clean, readable PDFs.",
+   "accepts": [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tiff",
+    "tif",
+    "ico",
+    "heic",
+    "heif",
+    "svg",
+    "ppm",
+    "pgm",
+    "pbm",
+    "pnm",
+    "xbm",
+    "xpm"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 100,
+   "options": [
+    {
+     "name": "color",
+     "type": "choice",
+     "label": "Color mode",
+     "default": "color",
+     "required": false,
+     "choices": [
+      "color",
+      "grayscale",
+      "bw"
+     ]
+    },
+    {
+     "name": "enhance",
+     "type": "bool",
+     "label": "Auto-enhance contrast and sharpness",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "page_size",
+     "type": "choice",
+     "label": "Page size",
+     "default": "a4",
+     "required": false,
+     "choices": [
+      "fit",
+      "a4",
+      "letter",
+      "legal"
+     ]
+    },
+    {
+     "name": "orientation",
+     "type": "choice",
+     "label": "Orientation",
+     "default": "auto",
+     "required": false,
+     "choices": [
+      "auto",
+      "portrait",
+      "landscape"
+     ]
+    },
+    {
+     "name": "margin",
+     "type": "choice",
+     "label": "Margin",
+     "default": "none",
+     "required": false,
+     "choices": [
+      "none",
+      "small",
+      "big"
+     ]
+    },
+    {
+     "name": "merge",
+     "type": "bool",
+     "label": "Merge all scans into one PDF",
+     "default": true,
+     "required": false
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "resize-image",
+   "name": "Resize Image",
+   "category": "image",
+   "description": "Resize images by pixels or percentage.",
+   "accepts": [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tiff",
+    "tif",
+    "ico",
+    "heic",
+    "heif",
+    "svg",
+    "ppm",
+    "pgm",
+    "pbm",
+    "pnm",
+    "xbm",
+    "xpm"
+   ],
+   "output": "image",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "width",
+     "type": "int",
+     "label": "Width (px)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 20000
+    },
+    {
+     "name": "height",
+     "type": "int",
+     "label": "Height (px)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 20000
+    },
+    {
+     "name": "percent",
+     "type": "int",
+     "label": "Scale (%)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 1000
+    },
+    {
+     "name": "keep_aspect",
+     "type": "bool",
+     "label": "Keep aspect ratio",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 90,
+     "required": false,
+     "help": "For JPG and WEBP",
+     "min": 10,
+     "max": 100
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "compress-image",
+   "name": "Compress Image",
+   "category": "image",
+   "description": "Shrink JPG, PNG and WEBP files with minimal visible quality loss.",
+   "accepts": [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "bmp",
+    "gif",
+    "tiff",
+    "tif",
+    "ico",
+    "heic",
+    "heif",
+    "svg",
+    "ppm",
+    "pgm",
+    "pbm",
+    "pnm",
+    "xbm",
+    "xpm"
+   ],
+   "output": "image",
+   "min_files": 1,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "quality",
+     "type": "int",
+     "label": "Quality",
+     "default": 75,
+     "required": false,
+     "min": 10,
+     "max": 100
+    },
+    {
+     "name": "max_dimension",
+     "type": "int",
+     "label": "Max width/height (px, 0 = keep)",
+     "default": 0,
+     "required": false,
+     "min": 0,
+     "max": 20000
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "word-to-pdf",
+   "name": "Word to PDF",
+   "category": "convert-to-pdf",
+   "description": "Make DOC and DOCX files easy to read by converting them to PDF.",
+   "accepts": [
+    "doc",
+    "docx",
+    "odt",
+    "rtf",
+    "txt",
+    "wpd",
+    "docm",
+    "dot",
+    "dotx"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 10,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [
+    "libreoffice"
+   ],
+   "aliases": [
+    "docx-to-pdf",
+    "doc-to-pdf"
+   ]
+  },
+  {
+   "slug": "excel-to-pdf",
+   "name": "Excel to PDF",
+   "category": "convert-to-pdf",
+   "description": "Turn spreadsheets into PDFs while preserving formatting.",
+   "accepts": [
+    "xls",
+    "xlsx",
+    "xlsm",
+    "ods",
+    "csv"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 10,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [
+    "libreoffice"
+   ],
+   "aliases": [
+    "xlsx-to-pdf",
+    "xls-to-pdf"
+   ]
+  },
+  {
+   "slug": "powerpoint-to-pdf",
+   "name": "PowerPoint to PDF",
+   "category": "convert-to-pdf",
+   "description": "Convert presentations to PDF for easy sharing and printing.",
+   "accepts": [
+    "ppt",
+    "pptx",
+    "pps",
+    "ppsx",
+    "odp"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 10,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [
+    "libreoffice"
+   ],
+   "aliases": [
+    "ppt-to-pdf",
+    "pptx-to-pdf"
+   ]
+  },
+  {
+   "slug": "html-to-pdf",
+   "name": "HTML to PDF",
+   "category": "convert-to-pdf",
+   "description": "Convert web pages (HTML files) to PDF.",
+   "accepts": [
+    "html",
+    "htm"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 10,
+   "options": [],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "compress-pdf",
+   "name": "Compress PDF",
+   "category": "optimize",
+   "description": "Reduce file size while keeping the best possible quality.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 20,
+   "options": [
+    {
+     "name": "level",
+     "type": "choice",
+     "label": "Compression",
+     "default": "recommended",
+     "required": false,
+     "choices": [
+      "low",
+      "recommended",
+      "extreme"
+     ]
+    },
+    {
+     "name": "grayscale",
+     "type": "bool",
+     "label": "Convert images to grayscale",
+     "default": false,
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "repair-pdf",
+   "name": "Repair PDF",
+   "category": "optimize",
+   "description": "Recover data from a damaged or corrupt PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "ocr-pdf",
+   "name": "OCR PDF",
+   "category": "optimize",
+   "description": "Make scanned PDFs searchable and selectable by recognizing their text.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "language",
+     "type": "str",
+     "label": "Document language(s)",
+     "default": "eng",
+     "required": false,
+     "help": "Tesseract codes, e.g. eng, urd, ara, eng+urd"
+    },
+    {
+     "name": "force",
+     "type": "bool",
+     "label": "OCR pages that already contain text",
+     "default": false,
+     "required": false
+    },
+    {
+     "name": "dpi",
+     "type": "int",
+     "label": "Scan resolution",
+     "default": 300,
+     "required": false,
+     "min": 150,
+     "max": 400
+    },
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages",
+     "default": "all",
+     "required": false,
+     "help": "All pages, or ranges like 1-3,5,8-"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [
+    "tesseract"
+   ],
+   "aliases": []
+  },
+  {
+   "slug": "merge-pdf",
+   "name": "Merge PDF",
+   "category": "organize",
+   "description": "Combine PDFs in the order you want into one file.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 2,
+   "max_files": 50,
+   "options": [
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "split-pdf",
+   "name": "Split PDF",
+   "category": "organize",
+   "description": "Split a PDF into several files by page ranges, every N pages, or one file per page.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "zip",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "mode",
+     "type": "choice",
+     "label": "Split mode",
+     "default": "ranges",
+     "required": false,
+     "choices": [
+      "ranges",
+      "every",
+      "all"
+     ]
+    },
+    {
+     "name": "ranges",
+     "type": "str",
+     "label": "Ranges",
+     "default": "",
+     "required": false,
+     "help": "Each range becomes a file, e.g. 1-3,4-6,7-"
+    },
+    {
+     "name": "every",
+     "type": "int",
+     "label": "Pages per file",
+     "default": 1,
+     "required": false,
+     "min": 1,
+     "max": 10000
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "remove-pages",
+   "name": "Remove pages",
+   "category": "organize",
+   "description": "Delete the pages you don't need from a PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages to remove",
+     "default": null,
+     "required": true,
+     "help": "e.g. 2,5-7"
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "extract-pages",
+   "name": "Extract pages",
+   "category": "organize",
+   "description": "Pull selected pages out into a new PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "pages",
+     "type": "str",
+     "label": "Pages to extract",
+     "default": null,
+     "required": true,
+     "help": "e.g. 1,3-5"
+    },
+    {
+     "name": "separate",
+     "type": "bool",
+     "label": "Save each page as a separate PDF",
+     "default": false,
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "organize-pdf",
+   "name": "Organize PDF",
+   "category": "organize",
+   "description": "Reorder, rotate, delete or add blank pages - across one or several PDFs.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 20,
+   "options": [
+    {
+     "name": "order",
+     "type": "json",
+     "label": "Page order",
+     "default": null,
+     "required": false,
+     "help": "List of pages for the result, e.g. [{\"file\":0,\"page\":3,\"rotate\":90},{\"blank\":true},{\"file\":1,\"page\":1}]. Pages are 1-based, 'file' is the upload index. Pages left out are removed."
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "unlock-pdf",
+   "name": "Unlock PDF",
+   "category": "security",
+   "description": "Remove the password and restrictions from a PDF you have the password for.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "password",
+     "type": "str",
+     "label": "Current password",
+     "default": "",
+     "required": false,
+     "help": "Leave empty if the file only has editing/printing restrictions",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "protect-pdf",
+   "name": "Protect PDF",
+   "category": "security",
+   "description": "Encrypt your PDF with a password (AES-256) and control printing and copying.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "new_password",
+     "type": "str",
+     "label": "Password to open",
+     "default": null,
+     "required": true,
+     "secret": true
+    },
+    {
+     "name": "owner_password",
+     "type": "str",
+     "label": "Owner password (optional)",
+     "default": "",
+     "required": false,
+     "help": "Needed to change permissions. Defaults to a random one when restrictions are set.",
+     "secret": true
+    },
+    {
+     "name": "allow_print",
+     "type": "bool",
+     "label": "Allow printing",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "allow_copy",
+     "type": "bool",
+     "label": "Allow copying text",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "allow_edit",
+     "type": "bool",
+     "label": "Allow editing",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "sign-pdf",
+   "name": "Sign PDF",
+   "category": "security",
+   "description": "Sign a PDF yourself: place a drawn/uploaded signature or a typed name, initials and date.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "placements",
+     "type": "json",
+     "label": "Where to sign",
+     "default": null,
+     "required": true,
+     "help": "[{\"page\":1,\"x\":350,\"y\":700,\"width\":180,\"height\":60,\"kind\":\"signature\"}] - kind is signature | text | date; text uses 'text'. Coordinates are points from the visual top-left."
+    },
+    {
+     "name": "typed_name",
+     "type": "str",
+     "label": "Typed signature",
+     "default": "",
+     "required": false,
+     "help": "Used when no signature image is uploaded"
+    },
+    {
+     "name": "color",
+     "type": "color",
+     "label": "Ink color",
+     "default": [
+      0.05,
+      0.1,
+      0.45
+     ],
+     "required": false
+    },
+    {
+     "name": "remove_background",
+     "type": "bool",
+     "label": "Remove white background from signature photo",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "date_format",
+     "type": "str",
+     "label": "Date format",
+     "default": "%d %b %Y",
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [
+    {
+     "name": "signature",
+     "label": "Signature image (drawn or photographed)",
+     "accepts": [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp",
+      "bmp",
+      "gif",
+      "tiff",
+      "tif",
+      "ico",
+      "heic",
+      "heif",
+      "svg",
+      "ppm",
+      "pgm",
+      "pbm",
+      "pnm",
+      "xbm",
+      "xpm"
+     ],
+     "required": false,
+     "multiple": false
+    }
+   ],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "redact-pdf",
+   "name": "Redact PDF",
+   "category": "security",
+   "description": "Permanently remove sensitive text, areas and metadata from a PDF.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 1,
+   "max_files": 1,
+   "options": [
+    {
+     "name": "terms",
+     "type": "json",
+     "label": "Words or phrases to redact",
+     "default": null,
+     "required": false,
+     "help": "[\"John Smith\", \"ACC-1234\"]"
+    },
+    {
+     "name": "patterns",
+     "type": "str",
+     "label": "Auto-detect",
+     "default": "",
+     "required": false,
+     "help": "Comma separated: email, phone, url, card"
+    },
+    {
+     "name": "areas",
+     "type": "json",
+     "label": "Areas to redact",
+     "default": null,
+     "required": false,
+     "help": "[{\"page\":1,\"x\":50,\"y\":100,\"width\":200,\"height\":20}] in points from the visual top-left"
+    },
+    {
+     "name": "fill",
+     "type": "color",
+     "label": "Box color",
+     "default": [
+      0,
+      0,
+      0
+     ],
+     "required": false
+    },
+    {
+     "name": "remove_metadata",
+     "type": "bool",
+     "label": "Remove document metadata",
+     "default": true,
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  },
+  {
+   "slug": "compare-pdf",
+   "name": "Compare PDF",
+   "category": "security",
+   "description": "Compare two PDFs side by side and highlight what was added or removed.",
+   "accepts": [
+    "pdf"
+   ],
+   "output": "pdf",
+   "min_files": 2,
+   "max_files": 2,
+   "options": [
+    {
+     "name": "ignore_case",
+     "type": "bool",
+     "label": "Ignore upper/lower case",
+     "default": false,
+     "required": false
+    },
+    {
+     "name": "removed_color",
+     "type": "color",
+     "label": "Removed text color",
+     "default": [
+      0.95,
+      0.25,
+      0.25
+     ],
+     "required": false
+    },
+    {
+     "name": "added_color",
+     "type": "color",
+     "label": "Added text color",
+     "default": [
+      0.2,
+      0.75,
+      0.3
+     ],
+     "required": false
+    },
+    {
+     "name": "password",
+     "type": "str",
+     "label": "PDF password",
+     "default": "",
+     "required": false,
+     "help": "Only for protected PDFs",
+     "secret": true
+    }
+   ],
+   "extra_inputs": [],
+   "requires": [],
+   "aliases": []
+  }
+ ]
+}

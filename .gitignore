@@ -1,0 +1,26 @@
+# dependencies & builds
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# runtime data
+backend/storage/
+backend/tessdata/
+
+# secrets - never commit these
+.env
+.env.local
+.env.*.local
+
+# tools
+.vercel/
+.DS_Store
+Thumbs.db
