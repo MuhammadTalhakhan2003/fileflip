@@ -75,7 +75,9 @@ def create_app() -> FastAPI:
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
-        if request.url.path != f"{settings.api_prefix}/health":
+        quiet = request.url.path == f"{settings.api_prefix}/health" or request.url.path.startswith(
+            f"{settings.api_prefix}/progress/")  # polled every second while a file converts
+        if not quiet:
             log.info("%s %s -> %s (%.0f ms) [%s]", request.method, request.url.path, response.status_code, elapsed,
                      request_id)
         return response

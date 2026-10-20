@@ -11,7 +11,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
 from app.api.deps import client_ip, get_job_slots, get_rate_limiter, get_storage
-from app.core import engines
+from app.core import engines, progress
 from app.core.config import get_settings
 from app.core.errors import AppError, ConversionFailed, InvalidInput, JobTimeout, NotFound, TooLarge
 from app.core.rate_limit import RateLimiter
@@ -121,6 +121,7 @@ async def convert(
 
     settings = get_settings()
     job = storage.create_job()
+    report = progress.Reporter(request.query_params.get("progress"))
     try:
         form = await request.form(max_files=settings.max_files_per_request + 20, max_fields=100,
                                   max_part_size=8 * 1024 * 1024)
@@ -128,14 +129,19 @@ async def convert(
             ctx = await _build_context(t, form, job.input_dir, job.work_dir)
         finally:
             await form.close()
+        ctx.progress = report
+        report(0.02, "Starting", force=True)
 
         result = await _run(t, ctx)
         if not result.path.is_file():
             raise ConversionFailed("The conversion produced no file.")
+        report(0.99, "Finishing up", force=True)
         record = storage.finalize(job, result.path, tool=t.slug, meta=result.meta)
     except BaseException:
         storage.discard(job)
         raise
+    finally:
+        report.close()
 
     record["download_url"] = f"{settings.api_prefix}/download/{job.id}"
     return record
@@ -189,6 +195,15 @@ async def _run(t: Tool, ctx: Context):
             raise ConversionFailed(
                 "Something went wrong while processing your file. It may be damaged or use unsupported features."
             ) from exc
+
+
+@router.get("/progress/{progress_id}", summary="Live progress of a running conversion")
+def job_progress(progress_id: str) -> dict:
+    data = progress.read(progress_id)
+    if data is None:
+        # not started yet, already finished, or unknown - the browser keeps estimating
+        return {"percent": None, "stage": None}
+    return {"percent": data["percent"], "stage": data.get("stage")}
 
 
 # ---------------------------------------------------------------- results

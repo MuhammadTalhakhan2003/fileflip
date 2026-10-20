@@ -171,9 +171,9 @@ Found a bug? Want a new tool? PRs and issues are very welcome. Adding a tool is 
 
 <div align="center">
 
-### ☕ Designed & built by [Muhammad Talha Khan](https://muhammadtalhakhan2003.github.io/PortFolio_Talha/)
+### 🍪 Designed & built by [Muhammad Talha Khan](https://muhammadtalhakhan2003.github.io/PortFolio_Talha/)
 
-*Powered by chai and a personal grudge against paywalled PDFs.*
+*Powered by Cookies & Brookies.* 🍪
 
 If FileFlip saved you from a sign-up form today, drop a ⭐. It costs nothing, which is a theme around here.
 

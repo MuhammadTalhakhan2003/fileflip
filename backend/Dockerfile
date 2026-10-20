@@ -27,4 +27,4 @@ USER convertor
 
 EXPOSE 8000
 # PORT and WORKERS can be set by the host (Render sets PORT; small plans want WORKERS=1)
-CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers ${WORKERS:-2} --proxy-headers --forwarded-allow-ips=*"]
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers ${WORKERS:-2} --proxy-headers --forwarded-allow-ips=* --no-access-log"]

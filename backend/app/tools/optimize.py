@@ -41,10 +41,17 @@ def compress_pdf(ctx: Context) -> Result:
     before_total = after_total = 0
     threshold, target, quality = COMPRESSION_LEVELS[ctx.options["level"]]
 
-    for src in ctx.inputs:
+    count = len(ctx.inputs)
+    for k, src in enumerate(ctx.inputs):
         before = src.stat().st_size
         out = out_path(ctx.work_dir, f"{src.stem}_compressed", ".pdf")
+        which = f" ({k + 1} of {count})" if count > 1 else ""
+
+        def stage(fraction: float, text: str) -> None:
+            ctx.progress((k + fraction) / count, text + which)
+
         with open_pdf(src, ctx.options["password"]) as doc:
+            stage(0.05, "Optimizing images")
             try:
                 doc.rewrite_images(
                     dpi_threshold=threshold,
@@ -54,10 +61,12 @@ def compress_pdf(ctx: Context) -> Result:
                 )
             except Exception:  # very old or exotic image types - continue with structural compression
                 log.warning("Image rewrite failed for %s", src.name, exc_info=True)
+            stage(0.6, "Slimming down fonts")
             try:
                 doc.subset_fonts()
             except Exception:
                 log.debug("Font subsetting skipped", exc_info=True)
+            stage(0.75, "Packing the smaller PDF")
             doc.save(out, garbage=4, deflate=True, deflate_images=True, deflate_fonts=True, clean=True, use_objstms=1)
 
         after = out.stat().st_size
@@ -149,7 +158,9 @@ def ocr_pdf(ctx: Context) -> Result:
     src = ctx.inputs[0]
     recognized = skipped = 0
     with open_pdf(src, ctx.options["password"]) as doc:
-        for index in parse_page_ranges(ctx.options["pages"], doc.page_count):
+        pages = parse_page_ranges(ctx.options["pages"], doc.page_count)
+        for i in ctx.steps(len(pages), "Reading text on page {n} of {total}", end=0.9):
+            index = pages[i]
             page = doc[index]
             if not ctx.options["force"] and page.get_text("text").strip():
                 skipped += 1
@@ -163,6 +174,7 @@ def ocr_pdf(ctx: Context) -> Result:
             _add_invisible_text(page, page.get_text("words", textpage=textpage))
             recognized += 1
 
+        ctx.progress(0.92, "Saving your searchable PDF")
         out = out_path(ctx.work_dir, f"{src.stem}_ocr", ".pdf")
         doc.save(out, garbage=3, deflate=True)
     return Result(out, {"pages_recognized": recognized, "pages_skipped_with_text": skipped})

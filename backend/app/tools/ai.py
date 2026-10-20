@@ -121,6 +121,7 @@ def ai_summarizer(ctx: Context) -> Result:
         + text
         + "\n</document>"
     )
+    ctx.progress(0.1, "AI is reading your document")
     summary = ask_claude(system, prompt, effort="medium").strip()
     out = out_path(ctx.work_dir, f"{ctx.inputs[0].stem}_summary", ".md")
     out.write_text(summary, encoding="utf-8")
@@ -225,9 +226,13 @@ def translate_pdf(ctx: Context) -> Result:
         batches.append(current)
 
         translations: dict[str, str] = {}
+        ctx.progress(0.08, f"Translating into {target}")
         with ThreadPoolExecutor(max_workers=4) as pool:
-            for result in pool.map(lambda b: _translate_batch(b, target), batches):
+            for done, result in enumerate(pool.map(lambda b: _translate_batch(b, target), batches), 1):
                 translations.update(result)
+                ctx.progress(0.08 + 0.72 * done / len(batches), f"Translating into {target} ({done} of {len(batches)} parts)")
+
+        ctx.progress(0.82, "Placing the translated text on the pages")
 
         for p, blocks in page_blocks.items():
             page = doc[p]

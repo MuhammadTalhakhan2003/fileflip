@@ -96,7 +96,8 @@ def warm_up_libreoffice() -> None:
 
 def _office_to_pdf(ctx: Context, label: str) -> Result:
     outputs = []
-    for src in ctx.inputs:
+    label = "Converting your document" if len(ctx.inputs) == 1 else "Converting file {n} of {total}"
+    for src in ctx.each(ctx.inputs, label):
         pdf = libreoffice_convert(src, ctx.work_dir / "parts")
         outputs.append(pdf.rename(out_path(ctx.work_dir, src.stem, ".pdf")))
     return Result(bundle(outputs, ctx.work_dir, f"{label}_pdfs"), {"files": len(outputs)})

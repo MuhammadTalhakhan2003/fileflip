@@ -54,7 +54,7 @@ def save_image(img: Image.Image, dest: Path, fmt: str, quality: int = 90) -> Pat
 
 def _convert_all(ctx: Context, fmt: str) -> Result:
     outputs = []
-    for src in ctx.inputs:
+    for src in ctx.each(ctx.inputs, "Converting image {n} of {total}"):
         with open_image(src) as img:
             outputs.append(save_image(img, out_path(ctx.work_dir, src.stem, f".{fmt}"), fmt, ctx.options.get("quality", 90)))
     return Result(bundle(outputs, ctx.work_dir, f"converted_{fmt}"), {"files": len(outputs), "format": fmt})
@@ -168,9 +168,10 @@ def _images_to_pdf_tool(ctx: Context, prepare=None) -> Result:
     opts = ctx.options
     loaded = []
     try:
-        for src in ctx.inputs:
+        for src in ctx.each(ctx.inputs, "Reading image {n} of {total}", end=0.6):
             img = open_image(src)
             loaded.append((src, prepare(img, opts) if prepare else img))
+        ctx.progress(0.65, "Building your PDF")
         stem = ctx.inputs[0].stem if len(ctx.inputs) == 1 else "images"
         if opts["merge"]:
             dest = out_path(ctx.work_dir, stem, ".pdf")
@@ -259,7 +260,7 @@ def resize_image(ctx: Context) -> Result:
     if not (o["width"] or o["height"] or o["percent"]):
         raise InvalidInput("Enter a width, a height or a percentage.")
     outputs = []
-    for src in ctx.inputs:
+    for src in ctx.each(ctx.inputs, "Resizing image {n} of {total}"):
         with open_image(src) as img:
             w, h = img.size
             if o["percent"]:
@@ -293,7 +294,7 @@ def resize_image(ctx: Context) -> Result:
 def compress_image(ctx: Context) -> Result:
     outputs = []
     before = after = 0
-    for src in ctx.inputs:
+    for src in ctx.each(ctx.inputs, "Compressing image {n} of {total}"):
         with open_image(src) as img:
             if ctx.options["max_dimension"]:
                 img.thumbnail((ctx.options["max_dimension"],) * 2, Image.Resampling.LANCZOS)

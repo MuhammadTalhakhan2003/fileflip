@@ -66,24 +66,71 @@ function parseError(status: number, body: string, retryAfter?: string | null): A
   return new ApiError("Something went wrong. Please try again.", "error", status);
 }
 
+export interface ServerProgress {
+  /** 0..100 once the server has started on the file, null before that */
+  percent: number | null;
+  stage: string | null;
+}
+
+/** Poll the server's live progress for one conversion until `stop()` is called. */
+function pollProgress(id: string, onProgress: (p: ServerProgress) => void) {
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const tick = async () => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // a sleeping server holds requests open
+    try {
+      const res = await fetch(`${BASE}/progress/${id}`, { signal: controller.signal, cache: "no-store" });
+      if (res.ok && !stopped) onProgress((await res.json()) as ServerProgress);
+    } catch {
+      /* progress is a nice-to-have; the upload request decides success */
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (!stopped) timer = setTimeout(tick, 800);
+  };
+  tick();
+  return () => {
+    stopped = true;
+    clearTimeout(timer);
+  };
+}
+
+function newProgressId(): string {
+  const random = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+  return random.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+}
+
 /**
  * Upload files to a tool. XHR (not fetch) so we can show real upload progress.
  * `onUploadProgress` reports 0..1; `onProcessing` fires when the upload is done
- * and the server is working on the file.
+ * and the server is working on the file; `onServerProgress` then reports how far
+ * the conversion itself has got.
  */
 export function runTool(
   slug: string,
   form: FormData,
-  handlers: { onUploadProgress?: (p: number) => void; onProcessing?: () => void; signal?: AbortSignal } = {},
+  handlers: {
+    onUploadProgress?: (p: number) => void;
+    onProcessing?: () => void;
+    onServerProgress?: (p: ServerProgress) => void;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<JobResult> {
   return new Promise((resolve, reject) => {
+    const progressId = newProgressId();
+    let stopPolling = () => {};
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${BASE}/convert/${encodeURIComponent(slug)}`);
+    xhr.open("POST", `${BASE}/convert/${encodeURIComponent(slug)}?progress=${progressId}`);
     xhr.responseType = "text";
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) handlers.onUploadProgress?.(e.loaded / e.total);
     };
-    xhr.upload.onload = () => handlers.onProcessing?.();
+    xhr.upload.onload = () => {
+      handlers.onProcessing?.();
+      if (handlers.onServerProgress) stopPolling = pollProgress(progressId, handlers.onServerProgress);
+    };
+    xhr.onloadend = () => stopPolling();
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {

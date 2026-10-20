@@ -139,10 +139,24 @@ class Context:
     work_dir: Path
     options: dict[str, Any]
     extras: dict[str, list[Path]] = field(default_factory=dict)
+    # progress(fraction 0..1, stage text) - shown live in the browser while the tool runs
+    progress: Callable[..., None] = field(default=lambda *a, **k: None)
 
     def extra(self, name: str) -> Path | None:
         files = self.extras.get(name) or []
         return files[0] if files else None
+
+    def steps(self, total: int, label: str, start: float = 0.05, end: float = 0.95):
+        """Iterate 0..total-1, reporting progress: `for i in ctx.steps(n, "Page {n} of {total}")`."""
+        from app.core.progress import steps
+
+        return steps(self.progress, start, end, total, label)
+
+    def each(self, items, label: str, start: float = 0.05, end: float = 0.95):
+        """Like `steps`, but yields the items: `for src in ctx.each(ctx.inputs, "File {n} of {total}")`."""
+        items = list(items)
+        for i in self.steps(len(items), label, start, end):
+            yield items[i]
 
 
 @dataclass

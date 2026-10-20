@@ -1,4 +1,4 @@
-import { ArrowUpRight, Coffee, Heart, Lock, Timer, UserX } from "lucide-react";
+import { ArrowUpRight, Cookie, Heart, Lock, Timer, UserX } from "lucide-react";
 import Link from "next/link";
 
 import { Logo } from "@/components/layout/Logo";
@@ -51,7 +51,7 @@ export function Footer() {
       <div className="border-t border-line">
         <div className="container-page flex flex-col items-center gap-2 border-b border-line py-5 text-center text-[13px] text-muted">
           <p>
-            <Coffee className="mr-1.5 inline size-4 -translate-y-px text-amber-500" />
+            <Cookie className="mr-1.5 inline size-4 -translate-y-px text-amber-500" />
             Designed &amp; built by{" "}
             <a
               href={AUTHOR.url}
@@ -63,7 +63,7 @@ export function Footer() {
               <ArrowUpRight className="size-3.5 transition-transform group-hover/author:-translate-y-0.5 group-hover/author:translate-x-0.5" />
             </a>
           </p>
-          <p className="text-subtle italic">Powered by chai and a personal grudge against paywalled PDFs.</p>
+          <p className="text-subtle italic">Powered by Cookies &amp; Brookies.</p>
         </div>
         <div className="container-page flex flex-col items-center justify-between gap-3 py-5 text-[13px] text-muted sm:flex-row">
           <p>© {year} {SITE_NAME}. Made with <Heart className="inline size-3.5 fill-coral text-coral" /> for everyone.</p>

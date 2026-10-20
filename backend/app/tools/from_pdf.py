@@ -3,6 +3,7 @@
 import logging
 import re
 import subprocess
+import threading
 
 import pymupdf
 from openpyxl import Workbook
@@ -42,18 +43,53 @@ def pdf_to_word(ctx: Context) -> Result:
         has_text = any(doc[p].get_text("text").strip() for p in pages[:20])
 
     out = out_path(ctx.work_dir, src.stem, ".docx")
+    ctx.progress(0.04, "Opening document")
+    listener = _Pdf2DocxProgress(ctx.progress)
+    root = logging.getLogger()
+    root.addHandler(listener)
     converter = Converter(str(src), password=password)
     try:
         converter.convert(str(out), pages=pages)
     except Exception as exc:
         raise ConversionFailed("We couldn't convert this PDF to Word. The layout may be too complex.") from exc
     finally:
+        root.removeHandler(listener)
         converter.close()
 
     meta = {"pages": len(pages)}
     if not has_text:
         meta["warning"] = "This looks like a scanned PDF. Run 'OCR PDF' first to get editable text."
     return Result(out, meta)
+
+
+class _Pdf2DocxProgress(logging.Handler):
+    """pdf2docx logs '[3/4] Parsing pages...' then '(2/9) Page 2' for every page - turn that into progress."""
+
+    STAGES = {
+        "1": (0.05, 0.08, "Opening document"),
+        "2": (0.08, 0.12, "Analyzing layout"),
+        "3": (0.12, 0.60, "Reading page {n} of {total}"),
+        "4": (0.60, 0.95, "Building Word page {n} of {total}"),
+    }
+
+    def __init__(self, report):
+        super().__init__(logging.INFO)
+        self.report = report
+        self.thread = threading.get_ident()  # other conversions may be logging at the same time
+        self.stage = self.STAGES["1"]
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.thread != self.thread:
+            return
+        msg = record.getMessage()
+        if m := re.search(r"\[([1-4])/4\]", msg):
+            self.stage = self.STAGES[m.group(1)]
+            start, _, label = self.stage
+            self.report(start, label.split(" {n}")[0].replace("page", "pages") if "{n}" in label else label)
+        elif m := re.match(r"\((\d+)/(\d+)\) Page", msg):
+            n, total = int(m.group(1)), int(m.group(2))
+            start, end, label = self.stage
+            self.report(start + (end - start) * n / max(total, 1), label.format(n=n, total=total))
 
 
 # ---------------------------------------------------------------- images
@@ -67,7 +103,8 @@ def _pdf_to_images(ctx: Context, fmt: str) -> Result:
         pages = parse_page_ranges(ctx.options["pages"], doc.page_count)
         parts = ctx.work_dir / "pages"
         parts.mkdir()
-        for p in pages:
+        for i in ctx.steps(len(pages), "Rendering page {n} of {total}"):
+            p = pages[i]
             pix = doc[p].get_pixmap(dpi=dpi, alpha=False)
             dest = parts / f"{src.stem}_page_{p + 1}.{fmt}"
             if fmt == "jpg":
@@ -220,7 +257,9 @@ def pdf_to_excel(ctx: Context) -> Result:
 
     single = sheet("Data") if layout == "single-sheet" else None
     with open_pdf(src, ctx.options["password"]) as doc:
-        for p in parse_page_ranges(ctx.options["pages"], doc.page_count):
+        pages = parse_page_ranges(ctx.options["pages"], doc.page_count)
+        for i in ctx.steps(len(pages), "Finding tables on page {n} of {total}", end=0.9):
+            p = pages[i]
             page = doc[p]
             try:
                 tables = page.find_tables().tables
@@ -288,7 +327,8 @@ def pdf_to_powerpoint(ctx: Context) -> Result:
 
         img_dir = ctx.work_dir / "slides"
         img_dir.mkdir()
-        for p in pages:
+        for i in ctx.steps(len(pages), "Making slide {n} of {total}", end=0.9):
+            p = pages[i]
             page = doc[p]
             img = img_dir / f"{p}.png"
             page.get_pixmap(dpi=ctx.options["dpi"], alpha=False).save(img)
@@ -351,7 +391,12 @@ def pdf_to_markdown(ctx: Context) -> Result:
         try:
             import pymupdf4llm
 
-            md = pymupdf4llm.to_markdown(doc, pages=pages, show_progress=False)
+            # a few pages per call, so progress can move
+            batches = [pages[i:i + 5] for i in range(0, len(pages), 5)]
+            md = "".join(
+                pymupdf4llm.to_markdown(doc, pages=batches[i], show_progress=False)
+                for i in ctx.steps(len(batches), "Reading part {n} of {total}")
+            )
         except Exception:
             log.warning("pymupdf4llm failed, falling back to plain text", exc_info=True)
             md = "\n\n---\n\n".join(doc[p].get_text("text", sort=True) for p in pages)

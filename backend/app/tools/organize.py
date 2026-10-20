@@ -21,10 +21,11 @@ from app.tools.registry import Category, Context, Option, Result, tool
 def merge_pdf(ctx: Context) -> Result:
     merged = pymupdf.open()
     total = 0
-    for path in ctx.inputs:
+    for path in ctx.each(ctx.inputs, "Adding file {n} of {total}", end=0.8):
         with open_pdf(path, ctx.options["password"]) as src:
             merged.insert_pdf(src)
             total += src.page_count
+    ctx.progress(0.85, "Saving the merged PDF")
     out = out_path(ctx.work_dir, "merged", ".pdf")
     save_pdf(merged, out)
     return Result(out, {"files": len(ctx.inputs), "pages": total})

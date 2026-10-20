@@ -448,3 +448,75 @@ def test_rate_limit():
     with pytest.raises(RateLimited):
         limiter.check("1.2.3.4")
     limiter.check("5.6.7.8")
+
+
+# ---------------------------------------------------------------- live progress
+
+
+def test_progress_endpoint_lifecycle(client, tmp_path):
+    from app.core import progress
+
+    pid = "test-progress-123"
+    assert client.get(f"/api/v1/progress/{pid}").json() == {"percent": None, "stage": None}
+
+    report = progress.Reporter(pid)
+    report(0.4, "Reading page 2 of 5", force=True)
+    assert client.get(f"/api/v1/progress/{pid}").json() == {"percent": 40.0, "stage": "Reading page 2 of 5"}
+    report(0.2, "going backwards", force=True)  # never moves back
+    assert client.get(f"/api/v1/progress/{pid}").json()["percent"] == 40.0
+    report.close()
+    assert client.get(f"/api/v1/progress/{pid}").json()["percent"] is None
+
+    # ids that could escape the folder are ignored
+    assert progress.Reporter("../../etc/passwd").path is None
+    escaped = client.get("/api/v1/progress/..%2F..%2Fsecret")
+    assert escaped.status_code == 404 or escaped.json()["percent"] is None
+
+
+def test_conversion_accepts_progress_id_and_cleans_up(client):
+    pid = "conv-progress-abc"
+    resp = client.post(f"/api/v1/convert/pdf-to-jpg?progress={pid}", files=[("files", ("a.pdf", make_pdf(3), "application/pdf"))])
+    assert resp.status_code == 200, resp.text
+    # the progress file is removed once the result is ready
+    assert client.get(f"/api/v1/progress/{pid}").json()["percent"] is None
+
+
+@pytest.mark.parametrize("slug, file, label", [
+    ("pdf-to-jpg", ("a.pdf", make_pdf(4), "application/pdf"), "Rendering page 4 of 4"),
+    ("pdf-to-word", ("a.pdf", make_pdf(3), "application/pdf"), "Building Word page 3 of 3"),
+    ("merge-pdf", ("a.pdf", make_pdf(2), "application/pdf"), "Saving the merged PDF"),
+])
+def test_tools_report_rising_progress(tmp_path, slug, file, label):
+    from app.tools import get_tool
+    from app.tools.registry import Context
+
+    t = get_tool(slug)
+    src = tmp_path / file[0]
+    src.write_bytes(file[1])
+    work = tmp_path / "work"
+    work.mkdir()
+    calls = []
+    ctx = Context(inputs=[src, src] if slug == "merge-pdf" else [src], work_dir=work, options=t.parse_options({}),
+                  progress=lambda f, stage=None, **_: calls.append((f, stage)))
+    t.handler(ctx)
+
+    fractions = [f for f, _ in calls]
+    assert len(calls) >= 3
+    assert fractions == sorted(fractions), calls
+    assert 0 < fractions[0] and fractions[-1] < 1
+    assert label in [s for _, s in calls], calls
+
+
+def test_progress_cleanup_never_breaks_a_conversion(monkeypatch):
+    from pathlib import Path
+
+    from app.core import progress
+
+    report = progress.Reporter("locked-file-test")
+    report(0.5, "Halfway", force=True)
+
+    def locked(self, missing_ok=False):  # what Windows does while a poll is reading the file
+        raise PermissionError("[WinError 32] being used by another process")
+
+    monkeypatch.setattr(Path, "unlink", locked)
+    report.close()  # must not raise

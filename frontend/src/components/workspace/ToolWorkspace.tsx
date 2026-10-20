@@ -11,7 +11,7 @@ import { OptionField } from "@/components/workspace/OptionField";
 import { ProgressView } from "@/components/workspace/ProgressView";
 import { ResultView } from "@/components/workspace/ResultView";
 import { buildForm, initialValues, missingRequired, type Values, type WorkspaceApi } from "@/components/workspace/types";
-import { ApiError, runTool, toolStatus, type JobResult } from "@/lib/api";
+import { ApiError, runTool, toolStatus, type JobResult, type ServerProgress } from "@/lib/api";
 import { formatBytes, plural } from "@/lib/format";
 import { takeHandOff } from "@/lib/handoff";
 import { actionLabel, toolColor } from "@/lib/toolMeta";
@@ -54,6 +54,7 @@ export function ToolWorkspace({ slug }: { slug: string }) {
   const [extras, setExtras] = useState<Record<string, File[]>>({});
   const [phase, setPhase] = useState<Phase>("select");
   const [progress, setProgress] = useState(0);
+  const [serverProgress, setServerProgress] = useState<ServerProgress>({ percent: null, stage: null });
   const [job, setJob] = useState<JobResult | null>(null);
   const [error, setError] = useState<{ message: string; code: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -201,6 +202,7 @@ export function ToolWorkspace({ slug }: { slug: string }) {
     setError(null);
     setNotice(null);
     setProgress(0);
+    setServerProgress({ percent: null, stage: null });
     setPhase("uploading");
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     const controller = new AbortController();
@@ -209,8 +211,13 @@ export function ToolWorkspace({ slug }: { slug: string }) {
       const result = await runTool(tool.slug, buildForm(tool, files, values, extras), {
         onUploadProgress: setProgress,
         onProcessing: () => setPhase("processing"),
+        // keep the last real value: the progress file disappears just before the result arrives
+        onServerProgress: (p) => p.percent !== null && setServerProgress(p),
         signal: controller.signal,
       });
+      // let the ring finish its sweep to 100% before switching to the result
+      setServerProgress({ percent: 100, stage: "Done" });
+      await new Promise((r) => setTimeout(r, 550));
       setJob(result);
       setPhase("done");
     } catch (err) {
@@ -368,6 +375,9 @@ export function ToolWorkspace({ slug }: { slug: string }) {
           <ProgressView
             phase={phase}
             progress={progress}
+            server={serverProgress}
+            slug={tool.slug}
+            bytes={totalSize}
             color={color}
             label={PROCESSING_LABEL[tool.slug] ?? "Working on your file..."}
             onCancel={() => abortRef.current?.abort()}
