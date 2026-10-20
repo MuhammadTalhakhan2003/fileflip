@@ -24,3 +24,6 @@ backend/tessdata/
 .vercel/
 .DS_Store
 Thumbs.db
+
+# marketing screenshots
+linkedin/

@@ -57,7 +57,7 @@ function useSmoothProgress(phase: "uploading" | "processing", upload: number, se
         target = base + room * (1 - Math.exp(-seconds / Math.max(expected * 0.6, 2)));
       }
       const cap = server.percent === 100 ? 1 : CAP;
-      setShown((s) => Math.min(cap, Math.max(s, s + (target - s) * (server.percent === 100 ? 0.45 : 0.25))));
+      setShown((s) => Math.min(cap, Math.max(s, s + (target - s) * (server.percent === 100 ? 0.6 : 0.25))));
     }, 120);
     return () => clearInterval(id);
   }, [phase, upload, server.percent, expected]);
@@ -106,7 +106,15 @@ export function ProgressView({
   // the free server sleeps when idle; until it answers, say so instead of looking stuck
   const waking = phase === "processing" && server.percent === null && seconds >= 6;
   const heading =
-    phase === "uploading" ? "Uploading your file..." : waking ? "Waking up the server..." : server.stage ? `${server.stage}...` : label;
+    server.percent === 100
+      ? "Done!"
+      : phase === "uploading"
+        ? "Uploading your file..."
+        : waking
+          ? "Waking up the server..."
+          : server.stage
+            ? `${server.stage}...`
+            : label;
   const sub = waking
     ? "It naps when nobody's around. The first file after a quiet spell can take up to a minute - hang tight."
     : TIPS[tip];
