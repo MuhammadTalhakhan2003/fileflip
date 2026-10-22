@@ -520,3 +520,24 @@ def test_progress_cleanup_never_breaks_a_conversion(monkeypatch):
 
     monkeypatch.setattr(Path, "unlink", locked)
     report.close()  # must not raise
+
+
+def test_jpg_to_pdf_keeps_upright_jpegs_untouched_and_rotates_phone_photos(client):
+    def jpeg(orientation: int) -> bytes:
+        img = Image.new("RGB", (300, 200), (200, 60, 60))
+        exif = img.getexif()
+        exif[0x0112] = orientation
+        buf = io.BytesIO()
+        img.save(buf, "JPEG", quality=90, exif=exif)
+        return buf.getvalue()
+
+    upright, rotated = jpeg(1), jpeg(6)  # 6 = "rotate 90°", what phones write for portrait shots
+    _, data = run(client, "jpg-to-pdf", [("a.jpg", upright, "image/jpeg"), ("b.jpg", rotated, "image/jpeg")],
+                  data={"page_size": "fit", "margin": "none", "merge": "true"})
+    doc = pymupdf.open(stream=data, filetype="pdf")
+    assert doc.page_count == 2
+    first = doc.extract_image(doc[0].get_images()[0][0])
+    assert first["image"] == upright  # embedded byte-for-byte, no re-encode
+    second = doc.extract_image(doc[1].get_images()[0][0])
+    assert (second["width"], second["height"]) == (200, 300)  # turned upright
+    assert doc[1].rect.height > doc[1].rect.width

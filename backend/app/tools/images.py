@@ -122,42 +122,72 @@ PDF_LAYOUT_OPTIONS = (
 )
 
 
-def _image_bytes_for_pdf(img: Image.Image, src: Path) -> bytes:
-    """Re-encode to a format MuPDF embeds well. Untouched JPEGs are passed through to avoid quality loss."""
-    if src.suffix.lower() in (".jpg", ".jpeg") and img.format == "JPEG" and img.mode in ("RGB", "L", "CMYK"):
-        orientation = img.getexif().get(0x0112, 1)
-        if orientation == 1:
-            return src.read_bytes()
-    buf = io.BytesIO()
-    if img.mode in ("RGBA", "LA", "P"):
-        img.convert("RGBA").save(buf, "PNG")
-    else:
-        img.convert("RGB").save(buf, "JPEG", quality=95)
-    return buf.getvalue()
+# Longest side kept for a page image: A4/Letter at 300 DPI, so prints stay sharp. Phone photos
+# are often bigger; shrinking them keeps PDFs small and memory low on small servers.
+MAX_PAGE_PIXELS = 3508
+# Upright JPEGs at most this big go into the PDF byte-for-byte, without decoding
+PASSTHROUGH_BYTES = 6 * 1024 * 1024
 
 
-def images_to_pdf(images: list[tuple[Path, Image.Image]], dest: Path, opts: dict) -> int:
-    doc = pymupdf.open()
-    margin = MARGINS[opts["margin"]]
-    for src, img in images:
+def _page_image(src: Path, prepare=None, opts: dict | None = None) -> tuple[bytes, int, int, float]:
+    """One image ready for a PDF page: (encoded bytes, width px, height px, dpi). Decodes as little as possible."""
+    if src.suffix.lower() in (".jpg", ".jpeg") and prepare is None:
+        try:
+            with Image.open(src) as head:  # reads only the header
+                upright = head.format == "JPEG" and head.getexif().get(0x0112, 1) == 1
+                if upright and head.mode in ("RGB", "L", "CMYK") and max(head.size) <= MAX_PAGE_PIXELS                         and src.stat().st_size <= PASSTHROUGH_BYTES:
+                    dpi = (head.info.get("dpi") or (96, 96))[0] or 96
+                    return src.read_bytes(), head.width, head.height, float(dpi)
+        except Exception:
+            pass  # fall through to a full decode, which reports damaged files properly
+
+    img = open_image(src, max_side=MAX_PAGE_PIXELS)
+    try:
         if getattr(img, "n_frames", 1) > 1:
             img.seek(0)
-        dpi = img.info.get("dpi", (96, 96))[0] or 96
-        img_w = img.width * 72 / dpi
-        img_h = img.height * 72 / dpi
+        dpi = float((img.info.get("dpi") or (96, 96))[0] or 96)
+        if prepare:
+            img = prepare(img, opts)
+        if max(img.size) > MAX_PAGE_PIXELS:
+            scale = MAX_PAGE_PIXELS / max(img.size)
+            dpi *= scale  # keep the same physical size on "fit" pages
+            img = img.resize((max(1, round(img.width * scale)), max(1, round(img.height * scale))), Image.Resampling.LANCZOS)
+        buf = io.BytesIO()
+        if img.mode in ("RGBA", "LA", "P"):
+            img.convert("RGBA").save(buf, "PNG")
+        else:
+            img.convert("RGB").save(buf, "JPEG", quality=92)
+        return buf.getvalue(), img.width, img.height, dpi
+    finally:
+        img.close()
+
+
+def images_to_pdf(sources: list[Path], dest: Path, opts: dict, prepare=None, report=None) -> int:
+    """Build a PDF one image at a time, so memory stays flat however many photos there are."""
+    doc = pymupdf.open()
+    margin = MARGINS[opts["margin"]]
+    for i, src in enumerate(sources):
+        if report:
+            report(0.05 + 0.85 * i / len(sources), f"Adding image {i + 1} of {len(sources)}")
+        data, width, height, dpi = _page_image(src, prepare, opts)
+        img_w = width * 72 / dpi
+        img_h = height * 72 / dpi
 
         if opts["page_size"] == "fit":
             page_w, page_h = img_w + 2 * margin, img_h + 2 * margin
         else:
             paper = PAGE_SIZES[opts["page_size"]]
             page_w, page_h = paper.width, paper.height
-            landscape = opts["orientation"] == "landscape" or (opts["orientation"] == "auto" and img.width > img.height)
+            landscape = opts["orientation"] == "landscape" or (opts["orientation"] == "auto" and width > height)
             if landscape:
                 page_w, page_h = page_h, page_w
 
         page = doc.new_page(width=page_w, height=page_h)
         area = pymupdf.Rect(margin, margin, page_w - margin, page_h - margin)
-        page.insert_image(area, stream=_image_bytes_for_pdf(img, src), keep_proportion=True)
+        page.insert_image(area, stream=data, keep_proportion=True)
+        del data
+    if report:
+        report(0.92, "Saving your PDF")
     doc.save(dest, garbage=3, deflate=True)
     count = doc.page_count
     doc.close()
@@ -166,26 +196,17 @@ def images_to_pdf(images: list[tuple[Path, Image.Image]], dest: Path, opts: dict
 
 def _images_to_pdf_tool(ctx: Context, prepare=None) -> Result:
     opts = ctx.options
-    loaded = []
-    try:
-        for src in ctx.each(ctx.inputs, "Reading image {n} of {total}", end=0.6):
-            img = open_image(src)
-            loaded.append((src, prepare(img, opts) if prepare else img))
-        ctx.progress(0.65, "Building your PDF")
-        stem = ctx.inputs[0].stem if len(ctx.inputs) == 1 else "images"
-        if opts["merge"]:
-            dest = out_path(ctx.work_dir, stem, ".pdf")
-            pages = images_to_pdf(loaded, dest, opts)
-            return Result(dest, {"pages": pages})
-        outputs = []
-        for src, img in loaded:
-            dest = out_path(ctx.work_dir, src.stem, ".pdf")
-            images_to_pdf([(src, img)], dest, opts)
-            outputs.append(dest)
-        return Result(bundle(outputs, ctx.work_dir, "images_pdf"), {"files": len(outputs)})
-    finally:
-        for _, img in loaded:
-            img.close()
+    stem = ctx.inputs[0].stem if len(ctx.inputs) == 1 else "images"
+    if opts["merge"]:
+        dest = out_path(ctx.work_dir, stem, ".pdf")
+        pages = images_to_pdf(ctx.inputs, dest, opts, prepare, ctx.progress)
+        return Result(dest, {"pages": pages})
+    outputs = []
+    for src in ctx.each(ctx.inputs, "Converting image {n} of {total}"):
+        dest = out_path(ctx.work_dir, src.stem, ".pdf")
+        images_to_pdf([src], dest, opts, prepare)
+        outputs.append(dest)
+    return Result(bundle(outputs, ctx.work_dir, "images_pdf"), {"files": len(outputs)})
 
 
 @tool(

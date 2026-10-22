@@ -126,7 +126,9 @@ export function runTool(
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) handlers.onUploadProgress?.(e.loaded / e.total);
     };
+    let uploaded = false;
     xhr.upload.onload = () => {
+      uploaded = true;
       handlers.onProcessing?.();
       if (handlers.onServerProgress) stopPolling = pollProgress(progressId, handlers.onServerProgress);
     };
@@ -143,7 +145,16 @@ export function runTool(
       }
     };
     xhr.onerror = () =>
-      reject(new ApiError("Can't reach the server. Check your internet connection and try again.", "network", 0));
+      reject(
+        uploaded
+          ? // the files arrived, then the connection dropped: the server gave up, not the user's internet
+            new ApiError(
+              "The server stopped while working on your files. They may be too big for our free server - try fewer or smaller files.",
+              "server_stopped",
+              0,
+            )
+          : new ApiError("Can't reach the server. Check your internet connection and try again.", "network", 0),
+      );
     xhr.onabort = () => reject(new ApiError("Cancelled.", "aborted", 0));
     handlers.signal?.addEventListener("abort", () => xhr.abort());
     xhr.send(form);

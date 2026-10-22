@@ -203,11 +203,15 @@ def _rasterize_svg(path: Path) -> Image.Image:
     return Image.frombytes("RGBA", (pix.width, pix.height), pix.samples)
 
 
-def open_image(path: Path) -> Image.Image:
+def open_image(path: Path, max_side: int | None = None) -> Image.Image:
+    """Open and decode an image, upright. With `max_side`, big JPEGs are decoded at a reduced
+    scale straight away (a 12 MP photo then needs a quarter of the memory)."""
     if path.suffix.lower() == ".svg":
         return _rasterize_svg(path)
     try:
         img = Image.open(path)
+        if max_side and img.format == "JPEG" and max(img.size) > max_side:
+            img.draft("RGB", (max_side, max_side))
         img.load()
     except Image.DecompressionBombError:
         raise InvalidInput(f"'{path.name}' is too large (too many pixels).") from None
