@@ -44,7 +44,7 @@ export function ToolExplorer() {
   }));
 
   return (
-    <section id="tools" className="container-page scroll-mt-20 py-6">
+    <section id="tools" className="container-page scroll-mt-20 py-6 sm:py-10">
       <div className="sticky top-16 z-30 -mx-4 mb-8 bg-bg/85 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="scrollbar-thin -mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:pb-0">
@@ -90,7 +90,7 @@ export function ToolExplorer() {
 
       {searching ? (
         results.length ? (
-          <div className="grid animate-fade-in gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid animate-fade-in grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {results.map((t) => (
               <ToolCard key={t.slug} tool={t} />
             ))}
@@ -99,7 +99,7 @@ export function ToolExplorer() {
           <p className="py-16 text-center text-muted">No tools match &ldquo;{query}&rdquo;.</p>
         )
       ) : (
-        <div className="space-y-14">
+        <div className="space-y-10 sm:space-y-14">
           {groups.map((g) => {
             const style = CATEGORY_STYLE[g.id];
             return (
@@ -108,13 +108,13 @@ export function ToolExplorer() {
                   <div className="flex items-center gap-3">
                     <span className="h-7 w-1.5 rounded-full tint-bg" />
                     <div>
-                      <h2 className="font-display text-xl font-bold tracking-tight text-ink sm:text-2xl">{g.label}</h2>
+                      <h2 className="font-display text-lg font-bold tracking-tight text-ink sm:text-2xl">{g.label}</h2>
                       <p className="text-sm text-muted">{style.tagline}</p>
                     </div>
                   </div>
-                  <span className="hidden text-sm text-subtle sm:block">{g.tools.length} tools</span>
+                  <span className="label-mono shrink-0">{g.tools.length} tools</span>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
                   {g.tools.map((t) => (
                     <ToolCard key={t.slug} tool={t} />
                   ))}

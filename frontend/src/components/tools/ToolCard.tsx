@@ -15,9 +15,10 @@ export function ToolCard({ tool, compact = false }: { tool: Tool; compact?: bool
       href={`/${tool.slug}`}
       style={{ "--c": toolColor(tool) } as CSSProperties}
       className={clsx(
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-all duration-300",
+        "group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-all duration-300",
         "hover:-translate-y-1 hover:border-transparent hover:tint-ring",
-        compact ? "gap-3 p-4" : "gap-4 p-5 sm:p-6",
+        // phones: a compact tile (icon + name); descriptions appear from tablet size up
+        compact ? "gap-3 p-4" : "gap-3 p-4 sm:gap-4 sm:p-6",
       )}
     >
       {/* soft color wash that fades in on hover */}
@@ -29,13 +30,17 @@ export function ToolCard({ tool, compact = false }: { tool: Tool; compact?: bool
       <div className="relative flex items-start justify-between">
         <ToolIcon tool={tool} size={compact ? "sm" : "md"} />
         <span className="flex items-center gap-2">
-          {badge && <Badge tone={badge === "AI" ? "ai" : badge === "New" ? "new" : "brand"}>{badge}</Badge>}
+          {badge && (
+            <span className="hidden sm:inline-flex">
+              <Badge tone={badge === "AI" ? "ai" : badge === "New" ? "new" : "brand"}>{badge}</Badge>
+            </span>
+          )}
           <ArrowUpRight className="size-4 -translate-x-1 translate-y-1 text-subtle opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 group-hover:tint-text" />
         </span>
       </div>
       <div className="relative">
-        <h3 className={clsx("font-display font-bold tracking-tight text-ink", compact ? "text-[15px]" : "text-[17px]")}>{tool.name}</h3>
-        <p className={clsx("mt-1.5 line-clamp-2 leading-relaxed text-muted", compact ? "text-[13px]" : "text-sm")}>{tool.description}</p>
+        <h3 className={clsx("font-display leading-snug font-bold tracking-tight text-ink", compact ? "text-[15px]" : "text-[14.5px] sm:text-[17px]")}>{tool.name}</h3>
+        <p className={clsx("mt-1.5 line-clamp-2 leading-relaxed text-muted", compact ? "text-[13px]" : "hidden text-sm sm:block")}>{tool.description}</p>
       </div>
     </Link>
   );

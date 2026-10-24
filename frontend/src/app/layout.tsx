@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Dancing_Script, Great_Vibes, Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Caveat, Dancing_Script, Great_Vibes, Inter, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
@@ -12,6 +12,7 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap", weight: ["600", "700", "800"] });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono-face", display: "swap", weight: ["500"] });
 // handwriting fonts for typed signatures (only downloaded when used)
 const sig1 = Dancing_Script({ subsets: ["latin"], variable: "--font-sig-1", display: "swap", preload: false });
 const sig2 = Great_Vibes({ subsets: ["latin"], variable: "--font-sig-2", display: "swap", weight: "400", preload: false });
@@ -45,8 +46,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f7fb" },
-    { media: "(prefers-color-scheme: dark)", color: "#080b17" },
+    { media: "(prefers-color-scheme: light)", color: "#fafafb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0c0f" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -69,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${jakarta.variable} ${sig1.variable} ${sig2.variable} ${sig3.variable}`}
+      className={`${inter.variable} ${jakarta.variable} ${mono.variable} ${sig1.variable} ${sig2.variable} ${sig3.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
@@ -80,6 +81,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-white">
           Skip to content
         </a>
+        {/* faint vertical guides along the content edges (wide screens only) */}
+        <div aria-hidden className="pointer-events-none fixed inset-y-0 left-1/2 -z-10 hidden w-[1240px] -translate-x-1/2 border-x border-frame xl:block" />
         <Navbar />
         <main id="main">{children}</main>
         <Footer />

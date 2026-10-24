@@ -24,7 +24,7 @@ const CHOICE_LABELS: Record<string, string> = {
   "2b": "PDF/A-2b",
   "3b": "PDF/A-3b",
   a4: "A4",
-  fit: "Fit image",
+  fit: "Fit",
   over: "Over content",
   under: "Under content",
   sans: "Sans",

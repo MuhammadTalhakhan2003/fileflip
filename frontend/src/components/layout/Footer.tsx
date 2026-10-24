@@ -1,4 +1,4 @@
-import { ArrowUpRight, Cookie, Heart, Lock, Timer, UserX } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Cookie, Heart, Lock, Timer, UserX } from "lucide-react";
 import Link from "next/link";
 
 import { Logo } from "@/components/layout/Logo";
@@ -8,17 +8,21 @@ import { CATEGORIES, getTool, toolsIn, type CategoryId } from "@/lib/tools";
 
 const COLUMNS: CategoryId[] = ["organize", "convert-to-pdf", "convert-from-pdf", "edit", "security", "image"];
 
+function columnTools(id: CategoryId) {
+  return id === "image" ? FEATURED_IMAGE_TOOLS.slice(0, 7).map((s) => getTool(s)!) : toolsIn(id).slice(0, 7);
+}
+
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-24 border-t border-line bg-elevated">
-      <div className="container-page py-14">
+    <footer className="mt-20 border-t border-line bg-elevated sm:mt-24">
+      <div className="container-page py-12 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[1.3fr_3fr]">
           <div className="max-w-xs">
             <Logo />
             <p className="mt-4 font-display text-lg font-bold text-ink">{SITE_SLOGAN}</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Every PDF and image tool you need, in one place. Free for everyone - no accounts, no watermarks, no limits on
+              Every PDF and image tool you need, in one place. Free for everyone: no accounts, no watermarks, no limits on
               how often you use it.
             </p>
             <ul className="mt-6 space-y-2.5 text-sm text-ink-2">
@@ -27,24 +31,41 @@ export function Footer() {
               <li className="flex items-center gap-2.5"><Timer className="size-4 text-brand" /> Files auto-deleted in 1 hour</li>
             </ul>
           </div>
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6">
-            {COLUMNS.map((id) => {
-              const tools = id === "image" ? FEATURED_IMAGE_TOOLS.slice(0, 7).map((s) => getTool(s)!) : toolsIn(id).slice(0, 7);
-              return (
-                <div key={id}>
-                  <h3 className="text-[11px] font-bold tracking-[0.08em] text-subtle uppercase">{CATEGORIES.find((c) => c.id === id)!.label}</h3>
-                  <ul className="mt-4 space-y-2.5">
-                    {tools.map((t) => (
-                      <li key={t.slug}>
-                        <Link href={`/${t.slug}`} className="text-[13.5px] text-muted transition-colors hover:text-ink">
-                          {t.name}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
+          {/* phones: one tap per category instead of a long list */}
+          <div className="divide-y divide-line rounded-2xl border border-line bg-surface sm:hidden">
+            {COLUMNS.map((id) => (
+              <details key={id} className="group">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3.5 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                  {CATEGORIES.find((c) => c.id === id)!.label}
+                  <ChevronDown className="size-4 text-subtle transition-transform duration-200 group-open:rotate-180" />
+                </summary>
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 px-4 pb-4">
+                  {columnTools(id).map((t) => (
+                    <li key={t.slug} className="min-w-0">
+                      <Link href={`/${t.slug}`} className="block truncate text-[13.5px] text-muted hover:text-ink">
+                        {t.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ))}
+          </div>
+          <div className="hidden gap-8 sm:grid sm:grid-cols-3 lg:grid-cols-6">
+            {COLUMNS.map((id) => (
+              <div key={id}>
+                <h3 className="label-mono">{CATEGORIES.find((c) => c.id === id)!.label}</h3>
+                <ul className="mt-4 space-y-2.5">
+                  {columnTools(id).map((t) => (
+                    <li key={t.slug}>
+                      <Link href={`/${t.slug}`} className="text-[13.5px] text-muted transition-colors hover:text-ink">
+                        {t.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       </div>

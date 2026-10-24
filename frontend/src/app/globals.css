@@ -5,22 +5,34 @@
 /* ------------------------------------------------------------------ tokens */
 
 :root {
-  --bg: #f6f7fb;
+  /* calm neutrals with a hint of the brand's violet, so greys never look accidental */
+  --bg: #fafafb;
   --bg-elevated: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f1f3f9;
-  --surface-3: #e8ebf4;
-  --line: #e3e6ef;
-  --line-strong: #cfd4e2;
-  --ink: #0e1222;
-  --ink-2: #2b3149;
-  --muted: #5d6481;
-  --subtle: #8a91ab;
+  --surface-2: #f4f4f7;
+  --surface-3: #e9e9ef;
+  --line: #e6e6ec;
+  --line-strong: #d3d3dc;
+  --ink: #0c0c12;
+  --ink-2: #2a2a35;
+  --muted: #5b5b69;
+  --subtle: #8b8b98;
 
-  --brand: #5145f0;
-  --brand-strong: #3f33d6;
+  --brand: #5a4ff3;
+  --brand-strong: #4639e0;
   --brand-ink: #ffffff;
-  --brand-soft: #eeedff;
+  --brand-soft: #efeeff;
+
+  /* charts */
+  --chart-1: #5a4ff3;
+  --chart-2: #f5b300;
+  --chart-3: #d63ce8;
+  --chart-4: #8b8b98;
+  --chart-grid: rgb(12 12 18 / 0.08);
+  --chart-crosshair: rgb(12 12 18 / 0.28);
+  --chart-tooltip: #0c0c12;
+  --chart-tooltip-ink: #ffffff;
+  --frame-line: rgb(12 12 18 / 0.07);
   --coral: #ff5d5d;
   --amber: #ffb547;
 
@@ -38,21 +50,31 @@
 }
 
 .dark {
-  --bg: #080b17;
-  --bg-elevated: #0e1224;
-  --surface: #111629;
-  --surface-2: #171d35;
-  --surface-3: #1f2645;
-  --line: rgb(255 255 255 / 0.08);
-  --line-strong: rgb(255 255 255 / 0.15);
-  --ink: #eef0fa;
-  --ink-2: #cdd2e6;
-  --muted: #98a0be;
-  --subtle: #6b7393;
+  --bg: #0c0c0f;
+  --bg-elevated: #121216;
+  --surface: #141418;
+  --surface-2: #1b1b21;
+  --surface-3: #25252c;
+  --line: rgb(255 255 255 / 0.075);
+  --line-strong: rgb(255 255 255 / 0.14);
+  --ink: #f3f3f6;
+  --ink-2: #d2d2da;
+  --muted: #a1a1ad;
+  --subtle: #6f6f7c;
 
-  --brand: #7b72ff;
-  --brand-strong: #958eff;
-  --brand-soft: rgb(123 114 255 / 0.14);
+  --brand: #7c73ff;
+  --brand-strong: #968fff;
+  --brand-soft: rgb(124 115 255 / 0.14);
+
+  --chart-1: #7067ff;
+  --chart-2: #ffc21a;
+  --chart-3: #e05cf0;
+  --chart-4: #6f6f7c;
+  --chart-grid: rgb(255 255 255 / 0.07);
+  --chart-crosshair: rgb(255 255 255 / 0.3);
+  --chart-tooltip: #f3f3f6;
+  --chart-tooltip-ink: #0c0c0f;
+  --frame-line: rgb(255 255 255 / 0.06);
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-md: 0 12px 32px -12px rgb(0 0 0 / 0.6);
@@ -84,6 +106,11 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-frame: var(--frame-line);
 
   --shadow-soft: var(--shadow-sm);
   --shadow-card: var(--shadow-md);
@@ -198,6 +225,46 @@ body {
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
+}
+
+/* "engineered" framing: a full-width hairline with small squares where it meets the page guides */
+@utility section-rule {
+  position: relative;
+  border-top: 1px solid var(--frame-line);
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--line-strong);
+    background: var(--bg);
+    display: none;
+  }
+  &::before { left: calc(max(0px, (100% - 1240px) / 2) - 3.5px); }
+  &::after { right: calc(max(0px, (100% - 1240px) / 2) - 3.5px); }
+  @media (min-width: 1280px) {
+    &::before, &::after { display: block; }
+  }
+}
+
+/* a card set into a soft outer frame */
+@utility panel {
+  position: relative;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--surface-2) 70%, transparent), var(--shadow-sm);
+}
+
+/* small mono label for meta text and eyebrows */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--subtle);
 }
 
 /* category tint: set --c on an element, then use these */
